@@ -95,10 +95,10 @@ void trackingBehaviour()
 void loop() {
     if (!huskylens.request()) Serial.println(F("Fail to request data from HUSKYLENS, recheck the connection!"));
 
-    if (!huskylens.available()) Serial.println(F("No block or arrow appears on the screen!"));
+//    if (!huskylens.available()) Serial.println(F("No block or arrow appears on the screen!"));
 
-    while (huskylens.available()) 
-    {      
+//    while (huskylens.available()) 
+//    {      
       HUSKYLENSResult result = huskylens.read();
       int distance = sonar.ping_cm(); // Send ping, get distance in cm and print result (0 = outside set distance range)
       int distance_median = sonar.convert_cm(sonar.ping_median(10));
@@ -122,7 +122,7 @@ void loop() {
         Serial.println(String() + F("Total rotation ") + degrees_rotated);
         Serial.println(String() + F("The ball is seen") + ball_was_seen);
       }
-    }
+//    }
 }
 
 void printResult(HUSKYLENSResult result){

@@ -16,9 +16,11 @@ class Vehicle
       void backward(int milliseconds);
       void left();
       void leftAngle(int angle);
-      void leftMilliseconds(int milliseconds);
+      void leftAngle(int angle, int power);
+      void leftMilliseconds(int milliseconds);      
       void right();
       void rightAngle(int angle);
+      void rightAngle(int angle, int power);
       void rightMilliseconds(int milliseconds);      
       void stop();
       void setPower(int speed);

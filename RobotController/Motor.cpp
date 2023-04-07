@@ -12,14 +12,12 @@
 ///   - Example: analogWrite(_pwm_pin, 100); is equeal to 39% duty
 ////////////////////////////////////
 
-Motor::Motor()
-{
+Motor::Motor() {
   _power = 0;
   _isSetup = false;
 }
 
-Motor::Motor(int pwm_pin, int dir_pin)
-{
+Motor::Motor(int pwm_pin, int dir_pin) {
   _pwm_pin = pwm_pin;
   _dir_pin = dir_pin;
   _power = 0;
@@ -27,8 +25,7 @@ Motor::Motor(int pwm_pin, int dir_pin)
   _isSetup = false;
 }
 
-Motor::Motor(int pwm_pin, int dir_pin, int power)
-{
+Motor::Motor(int pwm_pin, int dir_pin, int power) {
   _pwm_pin = pwm_pin;
   _dir_pin = dir_pin;
   _power = power;
@@ -36,8 +33,7 @@ Motor::Motor(int pwm_pin, int dir_pin, int power)
   _isSetup = false;
 }
 
-void Motor::setup()
-{
+void Motor::setup() {
   if (_isSetup)
     return;
 
@@ -47,8 +43,7 @@ void Motor::setup()
   _isSetup = true;
 }
 
-void Motor::forward()
-{
+void Motor::forward() {
   if (!_isSetup)
     setup();
 
@@ -56,8 +51,7 @@ void Motor::forward()
   analogWrite(_pwm_pin, _power);
 }
 
-void Motor::backward()
-{
+void Motor::backward() {
   if (!_isSetup)
     setup();
 
@@ -65,8 +59,7 @@ void Motor::backward()
   analogWrite(_pwm_pin, _power);
 }
 
-void Motor::move(int power, bool forward)
-{
+void Motor::move(int power, bool forward) {
   if (!_isSetup)
     setup();
 
@@ -74,16 +67,18 @@ void Motor::move(int power, bool forward)
   analogWrite(_pwm_pin, power);
 }
 
-void Motor::stop()
-{
+void Motor::stop() {
   if (!_isSetup)
     setup();
 
   analogWrite(_pwm_pin, 0);
 }
 
-void Motor::setPower(int power)
-{
+int Motor::getPower() {
+  return _power;
+}
+
+void Motor::setPower(int power) {
   if (power > 255)
     power = 255;
   else if (power < 0)

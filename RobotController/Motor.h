@@ -12,6 +12,7 @@ public:
   Motor();
   Motor(int pwm_pin, int dir_pin);
   Motor(int pwm_pin, int dir_pin, int power);
+  int getPower();
   void setup();
   void forward();
   void backward();

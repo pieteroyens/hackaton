@@ -23,11 +23,10 @@ void setup() {
 
 void loop() {
   
-  vehicle.forward(5000);
-  vehicle.rightAngle(180);
-  vehicle.forward(5000);
-  vehicle.leftAngle(180);
-  delay(2000);
+  vehicle.forward(2000);
+  vehicle.rightAngle(180, 60);
+  vehicle.forward(2000);
+  vehicle.leftAngle(180, 60);
   vehicle.stop();
   delay(2000);
 }

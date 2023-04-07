@@ -27,14 +27,14 @@ int power = 75;
 Motor motorLeft(3,2);
 Motor motorRight(9,8);
 
-Vehicle vehicle(motorlLeft, motorRight, power);
+Vehicle vehicle(motorLeft, motorRight, power);
 
 bool full_rotation = false;
 bool ball_was_seen = false;
 bool ball_is_collected = false;
 
-const degrees_rotated = 0;
-const degrees_delta = 20;
+int degrees_rotated = 0;
+const int degrees_delta = 20;
 
 void setup() {
     Serial.begin(115200);
@@ -48,26 +48,9 @@ void setup() {
     }
     
     vehicle.setup();
-
 }
 
-
-
-
-void loop() {
-    if (!huskylens.request()) Serial.println(F("Fail to request data from HUSKYLENS, recheck the connection!"));
-//    else if(!huskylens.isLearned()) Serial.println(F("Nothing learned, press learn button on HUSKYLENS to learn one!"));
-    if(!huskylens.available()) Serial.println(F("No block or arrow appears on the screen!"));
-//    else
-//    {
-//        Serial.println(F("###########"));
-//        while (huskylens.available())
-//        {
-//            HUSKYLENSResult result = huskylens.read();
-//            printResult(result);
-//        }    
-//    }
-
+//STRATEGY
     /**
      * Scan behaviour
      * while (result id == 0)
@@ -80,43 +63,64 @@ void loop() {
       * Tracking&Tracing
       * Drive forward, DS1 -> suck
       */
+void scanBehaviour() 
+{
+    Serial.println("we are scanning");
+    //the motor should rotate..
+    vehicle.rightAngle(degrees_delta,60);
+    Serial.println("we are rotating");
+    degrees_rotated += degrees_delta;
+}
+
+void repositionBehaviour() 
+{
+    int degrees = random(0,360);
+    vehicle.rightAngle(degrees, 60);
+    Serial.println("We are repositioning");
+    vehicle.forward(500);
+    vehicle.stop();
+    full_rotation = false;
+    degrees_rotated = 0;
+}
+
+void trackingBehaviour() 
+{
+    //initiate tracking behaviour
+    Serial.println("we have found something, start tracking and tracing");
+    vehicle.forward(500);
+    vehicle.stop();
+    degrees_rotated = 0;
+}
+
+void loop() {
+    if (!huskylens.request()) Serial.println(F("Fail to request data from HUSKYLENS, recheck the connection!"));
+
+    if (!huskylens.available()) Serial.println(F("No block or arrow appears on the screen!"));
+
     while (huskylens.available()) 
     {      
       HUSKYLENSResult result = huskylens.read();
       int distance = sonar.ping_cm(); // Send ping, get distance in cm and print result (0 = outside set distance range)
       int distance_median = sonar.convert_cm(sonar.ping_median(10));
-      if (degrees_rotated == 360) 
-      {
-        full_rotation = true;
-      }
+      
+      full_rotation = degrees_rotated >= 360;
+
       if(result.ID == 0 && !full_rotation)
       {
-        //motor command;
-        Serial.println("we are scanning");
-        //the motor should rotate..
-        vehicle.rightAngle(degrees_delta);
-        degrees_rotated += degrees_delta;
+        scanBehaviour();
       }
       else if(result.ID == 0 && full_rotation) 
       {
-        degrees = random(0,360);
-        vehicle.rightAngle(degrees);
-        vehicle.forward(500);
-        vehicle.stop();
-        full_rotation = false;
+        repositionBehaviour();
       }
       else if (result.ID != 0)
       {
-        //initiate tracking behaviour
-        Serial.println("we have found something, start tracking and tracing");
-        vehicle.forward(500);
-        vehicle.stop();
-        degrees_rotated = 0;
+        trackingBehaviour();
       }
       else {
         Serial.println("Continue searching");
         Serial.println(String() + F("Total rotation ") + degrees_rotated);
-        Serial.println(F("The ball is seen") + ball_was_seen);
+        Serial.println(String() + F("The ball is seen") + ball_was_seen);
       }
     }
 }

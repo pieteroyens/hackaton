@@ -24,12 +24,12 @@ void loop() {
   Serial.print(distance_median);
   Serial.print("cm");
   Serial.print(" In range: ");
-  Serial.print(isPingPongInRange(distance_median));
+  Serial.print(isPingPongInRange(distance_median, MIN_DISTANCE_TO_VACCUM_WALL));
   Serial.println();
 }
 
-bool isPingPongInRange(int current_distance) {
-  if (current_distance < MIN_DISTANCE_TO_VACCUM_WALL){
+bool isPingPongInRange(int current_distance, int min_distance_to_ball) {
+  if (current_distance < min_distance_to_ball){
     return true;
   }
 

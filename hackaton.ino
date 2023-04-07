@@ -2,6 +2,15 @@
 #include "SoftwareSerial.h"
 #include "Motor.h"
 #include "Vehicle.h"
+#include <NewPing.h>
+
+#define TRIGGER_PIN  9
+#define ECHO_PIN     10
+#define MAX_DISTANCE 400 // Maximum distance we want to measure (in centimeters).
+#define MIN_DISTANCE_TO_VACCUM_WALL 20
+
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+
 
 HUSKYLENS huskylens;
 SoftwareSerial mySerial(10, 11); // RX, TX
@@ -23,6 +32,9 @@ Vehicle vehicle(motorlLeft, motorRight, power);
 bool full_rotation = false;
 bool ball_was_seen = false;
 bool ball_is_collected = false;
+
+const degrees_rotated = 0;
+const degrees_delta = 20;
 
 void setup() {
     Serial.begin(115200);
@@ -71,15 +83,21 @@ void loop() {
     while (huskylens.available()) 
     {      
       HUSKYLENSResult result = huskylens.read();
-      if(result.ID == 0)
+      int distance = sonar.ping_cm(); // Send ping, get distance in cm and print result (0 = outside set distance range)
+      int distance_median = sonar.convert_cm(sonar.ping_median(10));
+      if (degrees_rotated == 360) 
+      {
+        full_rotation = true;
+      }
+      if(result.ID == 0 && !full_rotation)
       {
         //motor command;
         Serial.println("we are scanning");
         //the motor should rotate..
-        vehicle.rightAngle(360);
-        full_rotation = true
+        vehicle.rightAngle(degrees_delta);
+        degrees_rotated += degrees_delta;
       }
-      else if(result.ID == 0 && fullRotation) 
+      else if(result.ID == 0 && full_rotation) 
       {
         degrees = random(0,360);
         vehicle.rightAngle(degrees);
@@ -87,12 +105,18 @@ void loop() {
         vehicle.stop();
         full_rotation = false;
       }
-      else 
+      else if (result.ID != 0)
       {
         //initiate tracking behaviour
         Serial.println("we have found something, start tracking and tracing");
         vehicle.forward(500);
         vehicle.stop();
+        degrees_rotated = 0;
+      }
+      else {
+        Serial.println("Continue searching");
+        Serial.println(String() + F("Total rotation ") + degrees_rotated);
+        Serial.println(F("The ball is seen") + ball_was_seen);
       }
     }
 }
@@ -107,4 +131,12 @@ void printResult(HUSKYLENSResult result){
     else{
         Serial.println("Object unknown!");
     }
+}
+
+bool isPingPongInRange(int current_distance, int min_distance_to_ball) {
+  if (current_distance < min_distance_to_ball){
+    return true;
+  }
+
+  return false;
 }
